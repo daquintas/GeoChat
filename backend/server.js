@@ -2,64 +2,74 @@ require('dotenv').config()
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const logger = require('morgan');
 const mongoose= require('mongoose');
-
+const cors = require('cors');
 const Comment = require('./models/comment');
 
 const app = express();
 const router = express.Router();
 const port = process.env.API_PORT || 3001;
 
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
-app.use(logger('dev'));
+app.use(cors());
 
-mongoose.connect(process.env.DB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
+app.use(function(req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT,DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers');
+    res.setHeader('Cache-Control', 'no-cache');
+    next();
+  });
 
-router.get('/', function(req, res){
-    res.json({message: 'Hello world'});
-});
+mongoose.connect(process.env.db_uri, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then( () => {
+    console.log('Connection to the Atlas Cluster is successful!')
+  })
+  .catch( (err) => console.error(err));
 
-router.get('/comments', (req, res) => {
-    Comment.find((err, comments) => {
-        if(err) 
-            return res.json({success: false, error: err});
-        else{
-            return res.json({success: true, data: comments});
-        }
-    })
-});
+router.get('/', function(req, res) {
+    res.json({ message: 'API Initialized!'});
+  });
 
-router.post('/comments', (req, res) => {
-    const comment = new Comment();
-    const {author, text} = req.body;
-    if(!author || !text){
-        return res.json({
-            success: false,
-            error: 'You must provide author and comment'
+router.route('/comments')   
+        .get(function(req, res){
+            Comment.find(function(err, comments){
+                if(err) 
+                    return res.json({success: false, error: err});
+                else{
+                    return res.json({success: true, data: comments});
+                }
+            })
         })
-    }
-    comment.author = author;
-    comment.text = text;
-    comment.save(err => {
-        if(err){
+
+    .post(function(req, res) {
+        const comment = new Comment();
+        const {author, text} = req.body;
+        if(!author || !text){
             return res.json({
                 success: false,
-                error: err
+                error: 'You must provide author and comment'
             })
         }
-        else{
-            return res.json({
-                success: true
-            })
-        }
-    })
-});
+        comment.author = author;
+        comment.text = text;
+        comment.save(function(err) {
+            if(err){
+                return res.json({
+                    success: false,
+                    error: err
+                })
+            }
+            else{
+                return res.json({
+                    success: true
+                })
+            }
+        })
+    });
 
-app.get('/api', router);
+app.use('/api', router);
 
 app.listen(port, () => console.log(`Listening on port ${port}...`));

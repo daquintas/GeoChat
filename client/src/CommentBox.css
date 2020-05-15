@@ -15,6 +15,7 @@
     width: 75%;
     max-width: 700px;
     min-width: 300px;
+    text-align: center;
 }
 
 .comments h2{
@@ -86,11 +87,12 @@
 
 .form input{
     height: 30px;
-    padding-left: 10px;
+    padding-left: 15px;
     border: 1px solid #c1c1c1;
     margin-right: 10px;
     border-radius: 20px;
     flex: 3;
+    outline: none;
 }
 
 .form input:first-child{
