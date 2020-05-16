@@ -35,11 +35,11 @@ router.get('/', function(req, res) {
 
 router.route('/comments')   
         .get(function(req, res){
-            Comment.find(function(err, comments){
+            Comment.find({}, {}, { sort: { '_id': -1 }}).limit(7).exec(function(err, comments){
                 if(err) 
                     return res.json({success: false, error: err});
                 else{
-                    return res.json({success: true, data: comments});
+                    return res.json({success: true, data: comments.reverse()});
                 }
             })
         })

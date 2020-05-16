@@ -40,31 +40,33 @@ class CommmentBox extends Component{
 
     submitComment = (e) => {
         e.preventDefault();
-        console.log(this.state.author);
-        axios.post("http://localhost:3001/api/comments", {
-            author: this.state.author,
-            text: this.state.text
-        })
-        .then((res) => {
-                    if(!res.success){
-                    this.setState({error: res.error});
-                }
-                else{
-                    this.setState({author:'', text: '', error: null});
-                }
+        if(this.state.author == "" || this.state.text == ""){
+            return;
+        }
+        else{
+            axios.post("http://localhost:3001/api/comments", {
+                author: this.state.author,
+                text: this.state.text
             })
+            .then((res) => {
+                        if(!res.success){
+                        this.setState({error: res.error});
+                    }
+                    
+                    this.setState({author:'', text: '', error: null});
+            })
+        }
     }
 
 
     loadComments = () => {
-        fetch('/api/comments')
-            .then(data => data.json())
+        axios.get("http://localhost:3001/api/comments")
             .then( res => {
-                if(!res.success){
+                if(res.sucess==false){
                     this.setState({error: res.error});
                 }
                 else{
-                    this.setState({data: res.data});
+                 this.setState({data: res.data});
                 }
             });
     }
@@ -73,8 +75,10 @@ class CommmentBox extends Component{
         return(
             <div className="container">
                 <div className="comments">
-                    <h2>Anon GeoChat</h2>
-                    <CommentList data={this.state.data} />
+                    <h2>Anon GeoChat</h2>   
+                    {this.state.data.data &&
+                        <CommentList data={this.state.data} />
+                    }
                 </div>
                 <div className="form">
                     <CommentForm author={this.state.author} text={this.state.text} handleChangeText = {this.handleChange} submitComment={this.submitComment}/>
