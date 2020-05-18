@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import CommentList from './CommentList';
 import CommentForm from './CommentForm';
-import axios from 'axios';
 
+import axios from 'axios'; 
 
 import './CommentBox.css';
 
@@ -13,12 +13,14 @@ class CommmentBox extends Component{
         this.state = {
             data: [],
             author: '',
-            text: ''
+            text: '',
+            city: ''
         };
         this.pollInterval = null;
     }
 
     componentDidMount(){
+        this.getCity();
         this.loadComments();
         if(!this.pollInterval){
             this.pollInterval = setInterval(this.loadComments, 2000);
@@ -40,27 +42,42 @@ class CommmentBox extends Component{
 
     submitComment = (e) => {
         e.preventDefault();
-        if(this.state.author == "" || this.state.text == ""){
+        if(this.state.author == "" || this.state.text == "" || this.state.city == ""){
             return;
         }
         else{
             axios.post("http://localhost:3001/api/comments", {
                 author: this.state.author,
-                text: this.state.text
+                text: this.state.text,
+                city: this.state.city
             })
             .then((res) => {
                         if(!res.success){
                         this.setState({error: res.error});
                     }
-                    
-                    this.setState({author:'', text: '', error: null});
+                
+                    this.setState({author:'', text: '', city: '', error: null});
             })
         }
     }
 
+    getCity = () => {
+        fetch('https://geoip-db.com/json')
+        .then(res => res.json())
+        .then(json => {
+            axios.get('http://free.ipwhois.io/json/'+json.IPv4)
+            .then(res => {
+                this.setState({city: res.data.city});        
+            }
+        )}) 
+      } 
 
     loadComments = () => {
-        axios.get("http://localhost:3001/api/comments")
+        axios.get("http://localhost:3001/api/comments", {
+            params: {
+                city: this.state.city
+            }
+        })
             .then( res => {
                 if(res.sucess==false){
                     this.setState({error: res.error});

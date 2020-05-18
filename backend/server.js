@@ -35,7 +35,8 @@ router.get('/', function(req, res) {
 
 router.route('/comments')   
         .get(function(req, res){
-            Comment.find({}, {}, { sort: { '_id': -1 }}).limit(7).exec(function(err, comments){
+            // /{ sort: { '_id': -1 } .limit(7).exec    
+            Comment.find({'city': req.query.city}, {'text': 1, 'city': 1}, { sort: { '_id': -1 }}).limit(7).exec(function(err, comments){
                 if(err) 
                     return res.json({success: false, error: err});
                 else{
@@ -44,10 +45,10 @@ router.route('/comments')
             })
         })
 
-    .post(function(req, res) {
+    .post(function(req, res)    {
         const comment = new Comment();
-        const {author, text} = req.body;
-        if(!author || !text){
+        const {author, text, city} = req.body;
+        if(!author || !text ){
             return res.json({
                 success: false,
                 error: 'You must provide author and comment'
@@ -55,6 +56,7 @@ router.route('/comments')
         }
         comment.author = author;
         comment.text = text;
+        comment.city = city;
         comment.save(function(err) {
             if(err){
                 return res.json({
