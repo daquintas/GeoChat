@@ -56,7 +56,7 @@ class CommmentBox extends Component{
                         this.setState({error: res.error});
                     }
                 
-                    this.setState({author:'', text: '', city: '', error: null});
+                    this.setState({author:'', text: '', error: null});
             })
         }
     }

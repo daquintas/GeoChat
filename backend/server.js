@@ -34,8 +34,7 @@ router.get('/', function(req, res) {
   });
 
 router.route('/comments')   
-        .get(function(req, res){
-            // /{ sort: { '_id': -1 } .limit(7).exec    
+        .get(function(req, res){  
             Comment.find({'city': req.query.city}, {'text': 1, 'city': 1}, { sort: { '_id': -1 }}).limit(7).exec(function(err, comments){
                 if(err) 
                     return res.json({success: false, error: err});

@@ -4,7 +4,6 @@ import CommentBox from './CommentBox';
 import Comment from './Comment';
 
 const CommentList = (props) => (
-    console.log(props),
     Array.from(props.data.data).map(function(comment){
         return(
             <Comment author={comment.author} key={comment._id} id={comment._id}>
